@@ -2,6 +2,7 @@ import sys
 import logging
 import datetime
 import io
+import codecs
 
 import requests
 from lxml import etree
@@ -49,7 +50,7 @@ def set_keywords(pycsw_config_file, pycsw_config, ckan_url, limit=20):
 
     log.info('Setting tags in pycsw configuration file %s', pycsw_config_file)
     pycsw_config.set('metadata:main', 'identification_keywords', keywords)
-    with open(pycsw_config_file, 'wb') as configfile:
+    with codecs.open(pycsw_config_file, 'wb', 'utf-8') as configfile:
         pycsw_config.write(configfile)
 
 
