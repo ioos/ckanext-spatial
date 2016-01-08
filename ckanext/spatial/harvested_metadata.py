@@ -58,8 +58,8 @@ class MappedXmlElement(MappedXmlObject):
         values = []
         for xpath in self.get_search_paths():
             elements = self.get_elements(tree, xpath)
-            values = self.get_values(elements)
-            if values:
+            values.extend(self.get_values(elements))
+            if values and not self.multiplicity.endswith('*'):
                 break
         return self.fix_multiplicity(values)
 
@@ -205,6 +205,7 @@ class ISOResponsibleParty(ISOElement):
             name="individual-name",
             search_paths=[
                 "gmd:individualName/gco:CharacterString/text()",
+                "gmd:individualName/gmx:Anchor/text()",
             ],
             multiplicity="0..1",
         ),
@@ -212,6 +213,7 @@ class ISOResponsibleParty(ISOElement):
             name="organisation-name",
             search_paths=[
                 "gmd:organisationName/gco:CharacterString/text()",
+                "gmd:organisationName/gmx:Anchor/text()",
             ],
             multiplicity="0..1",
         ),
@@ -588,6 +590,7 @@ class ISODocument(MappedXmlDocument):
             name="responsible-organisation",
             search_paths=[
                 "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:pointOfContact/gmd:CI_ResponsibleParty",
+                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:citedResponsibleParty/gmd:CI_ResponsibleParty",
                 "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:pointOfContact/gmd:CI_ResponsibleParty",
                 "gmd:contact/gmd:CI_ResponsibleParty",
             ],
@@ -930,13 +933,13 @@ class ISODocument(MappedXmlDocument):
         values['tags'] = tags
 
     def infer_publisher(self, values):
-        value = ''
+        publishers = []
         for responsible_party in values['responsible-organisation']:
             if responsible_party['role'] == 'publisher':
-                value = responsible_party['organisation-name']
-            if value:
-                break
-        values['publisher'] = value
+                publisher = responsible_party['organisation-name']
+                if publisher:
+                    publishers.append(publisher)
+        values['publisher'] = publishers
 
     def infer_contact(self, values):
         value = ''
@@ -956,7 +959,6 @@ class ISODocument(MappedXmlDocument):
                 if value:
                     break
         values['contact-email'] = value
-
 
 class GeminiDocument(ISODocument):
     '''
