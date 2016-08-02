@@ -1,6 +1,6 @@
 import os
 from pkg_resources import resource_stream
-from ckanext.spatial.model import ISODocument
+from ckanext.spatial.model.harvested_metadata import ISODocument
 
 from lxml import etree
 
@@ -308,7 +308,7 @@ class Validators(object):
     '''
     def __init__(self, profiles=["iso19139", "constraints", "gemini2"]):
         self.profiles = profiles
-        
+
         self.validators = {} # name: class
         for validator_class in all_validators:
             self.validators[validator_class.name] = validator_class
