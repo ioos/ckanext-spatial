@@ -163,7 +163,7 @@ def guess_resource_format(resource_locator, use_mimetypes=True):
         'shp': ('shp',),
         'zip': ('zip',),
         # DAP
-        'opendap': ('nc',),
+        'OPeNDAP': ('nc',),
     }
 
     for file_type, extensions in file_types.items():
