@@ -95,6 +95,8 @@ def guess_resource_format(url, use_mimetypes=True):
         'kml' : ('kml',),
         'kmz': ('kmz',),
         'gml': ('gml',),
+        # DAP
+        'opendap': ('nc',),
     }
 
     for file_type, extensions in file_types.iteritems():
