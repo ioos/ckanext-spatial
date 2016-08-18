@@ -163,6 +163,8 @@ def guess_resource_format(resource_locator, use_mimetypes=True):
         'tif': ('tif','tiff',),
         'shp': ('shp',),
         'zip': ('zip',)
+        # DAP
+        'opendap': ('nc',),
     }
 
     for file_type, extensions in file_types.items():
