@@ -84,6 +84,8 @@ def guess_resource_format(url, use_mimetypes=True):
         'kml': ('mapserver/generatekml',),
         'arcims': ('com.esri.esrimap.esrimap',),
         'arcgis_rest': ('arcgis/rest/services',),
+        # ERDDAP
+        'erddap': ('/erddap/',),
     }
 
     for resource_type, parts in resource_types.iteritems():
