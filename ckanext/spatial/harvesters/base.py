@@ -97,7 +97,6 @@ def guess_resource_format(url, use_mimetypes=True):
         'kml' : ('kml',),
         'kmz': ('kmz',),
         'gml': ('gml',),
-        # DAP
         'OPeNDAP': ('nc',),
     }
 
@@ -107,7 +106,13 @@ def guess_resource_format(url, use_mimetypes=True):
 
     resource_format, encoding = mimetypes.guess_type(url)
     if resource_format:
-        return resource_format
+        # Most OPeNDAP endpoints should be caught by .nc extension, but
+        # also handle potential endpoints by mimetype
+        if resource_format == 'application/x-netcdf':
+            return 'OPeNDAP'
+        # TODO: Add mimetype for ERDDAP?
+        else:
+            return resource_format
 
     return None
 
