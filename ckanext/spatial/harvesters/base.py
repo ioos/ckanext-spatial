@@ -169,9 +169,15 @@ def guess_resource_format(resource_locator, use_mimetypes=True):
         if any(url.endswith(extension) for extension in extensions):
             return file_type
 
-    if use_mimetypes:
-        resource_format, encoding = mimetypes.guess_type(url)
-        return resource_format
+    resource_format, encoding = mimetypes.guess_type(url)
+    if resource_format:
+        # Most OPeNDAP endpoints should be caught by .nc extension, but
+        # also handle potential endpoints by mimetype
+        if resource_format == 'application/x-netcdf':
+            return 'OPeNDAP'
+        # TODO: Add mimetype for ERDDAP?
+        else:
+            return resource_format
 
     return None
 
