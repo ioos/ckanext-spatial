@@ -466,14 +466,14 @@ class ISOAggregationInfo(ISOElement):
         ISOElement(
             name="aggregate-dataset-name",
             search_paths=[
-                "gmd:aggregateDatasetName/gmd:CI_Citation/gmd:title/gco:CharacterString/text()",
+                "gmd:aggregateDataSetName/gmd:CI_Citation/gmd:title/gco:CharacterString/text()",
             ],
             multiplicity="0..1",
         ),
         ISOElement(
             name="aggregate-dataset-identifier",
             search_paths=[
-                "gmd:aggregateDatasetIdentifier/gmd:MD_Identifier/gmd:code/gco:CharacterString/text()",
+                "gmd:aggregateDataSetIdentifier/gmd:MD_Identifier/gmd:code/gco:CharacterString/text()",
             ],
             multiplicity="0..1",
         ),
@@ -493,6 +493,13 @@ class ISOAggregationInfo(ISOElement):
             ],
             multiplicity="0..1",
         ),
+        ISOResponsibleParty(
+            name="responsible-party",
+            search_paths=[
+                "gmd:aggregateDataSetName/gmd:CI_Citation/gmd:citedResponsibleParty/gmd:CI_ResponsibleParty"
+            ],
+            multiplicity="*"
+        )
     ]
 
 
@@ -512,6 +519,13 @@ class ISODistributor(ISOElement):
                 "gmd:distributorFormat/gmd:MD_Format"
             ],
             multiplicity="0..1"
+        ),
+        ISOResourceLocator(
+            name='transfer-options',
+            search_paths=[
+                "gmd:distributorTransferOptions/gmd:MD_DigitalTransferOptions/gmd:onLine/gmd:CI_OnlineResource"
+            ],
+            multiplicity="*"
         )
     ]
 
