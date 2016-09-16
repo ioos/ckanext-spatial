@@ -64,7 +64,7 @@ class MappedXmlElement(MappedXmlObject):
         return self.fix_multiplicity(values)
 
     def get_search_paths(self):
-        if type(self.search_paths) != type([]):
+        if not isinstance(self.search_paths, list):
             search_paths = [self.search_paths]
         else:
             search_paths = self.search_paths
@@ -113,7 +113,7 @@ class MappedXmlElement(MappedXmlObject):
         if self.multiplicity == "0":
             # 0 = None
             if values:
-                log.warn("Values found for element '%s' when multiplicity should be 0: %s",  self.name, values)
+                log.warn("Values found for element '%s' when multiplicity should be 0: %s", self.name, values)
             return ""
         elif self.multiplicity == "1":
             # 1 = Mandatory, maximum 1 = Exactly one
@@ -142,17 +142,17 @@ class MappedXmlElement(MappedXmlObject):
 class ISOElement(MappedXmlElement):
 
     namespaces = {
-       "gts": "http://www.isotc211.org/2005/gts",
-       "gml": "http://www.opengis.net/gml",
-       "gml32": "http://www.opengis.net/gml/3.2",
-       "gmx": "http://www.isotc211.org/2005/gmx",
-       "gsr": "http://www.isotc211.org/2005/gsr",
-       "gss": "http://www.isotc211.org/2005/gss",
-       "gco": "http://www.isotc211.org/2005/gco",
-       "gmd": "http://www.isotc211.org/2005/gmd",
-       "srv": "http://www.isotc211.org/2005/srv",
-       "xlink": "http://www.w3.org/1999/xlink",
-       "xsi": "http://www.w3.org/2001/XMLSchema-instance",
+        "gts": "http://www.isotc211.org/2005/gts",
+        "gml": "http://www.opengis.net/gml",
+        "gml32": "http://www.opengis.net/gml/3.2",
+        "gmx": "http://www.isotc211.org/2005/gmx",
+        "gsr": "http://www.isotc211.org/2005/gsr",
+        "gss": "http://www.isotc211.org/2005/gss",
+        "gco": "http://www.isotc211.org/2005/gco",
+        "gmd": "http://www.isotc211.org/2005/gmd",
+        "srv": "http://www.isotc211.org/2005/srv",
+        "xlink": "http://www.w3.org/1999/xlink",
+        "xsi": "http://www.w3.org/2001/XMLSchema-instance",
     }
 
 
@@ -195,7 +195,27 @@ class ISOResourceLocator(ISOElement):
             ],
             multiplicity="0..1",
         ),
-        ]
+    ]
+
+
+class ISOContactPhone(ISOElement):
+
+    elements = [
+        ISOElement(
+            name="voice",
+            search_paths=[
+                "gmd:voice/gco:CharacterString/text()",
+            ],
+            multiplicity="0..1",
+        ),
+        ISOElement(
+            name="fax",
+            search_paths=[
+                "gmd:facsimile/gco:CharacterString/text()",
+            ],
+            multiplicity="0..1"
+        )
+    ]
 
 
 class ISOResponsibleParty(ISOElement):
@@ -230,7 +250,7 @@ class ISOResponsibleParty(ISOElement):
                 "gmd:contactInfo/gmd:CI_Contact",
             ],
             multiplicity="0..1",
-            elements = [
+            elements=[
                 ISOElement(
                     name="email",
                     search_paths=[
@@ -245,7 +265,13 @@ class ISOResponsibleParty(ISOElement):
                     ],
                     multiplicity="0..1",
                 ),
-
+                ISOContactPhone(
+                    name="phone",
+                    search_paths=[
+                        "gmd:phone/gmd:CI_Telephone"
+                    ],
+                    multiplicity="0..1"
+                )
             ]
         ),
         ISOElement(
@@ -298,6 +324,7 @@ class ISOReferenceDate(ISOElement):
             multiplicity="1",
         ),
     ]
+
 
 class ISOCoupledResources(ISOElement):
 
@@ -360,6 +387,7 @@ class ISOBoundingBox(ISOElement):
         ),
     ]
 
+
 class ISOBrowseGraphic(ISOElement):
 
     elements = [
@@ -407,7 +435,7 @@ class ISOKeyword(ISOElement):
         ),
         # If Thesaurus information is needed at some point, this is the
         # place to add it
-   ]
+    ]
 
 
 class ISOUsage(ISOElement):
@@ -428,7 +456,7 @@ class ISOUsage(ISOElement):
             multiplicity="0..1",
         ),
 
-   ]
+    ]
 
 
 class ISOAggregationInfo(ISOElement):
@@ -464,7 +492,27 @@ class ISOAggregationInfo(ISOElement):
             ],
             multiplicity="0..1",
         ),
-   ]
+    ]
+
+
+class ISODistributor(ISOElement):
+
+    elements = [
+        ISOResponsibleParty(
+            name="distributor-contact",
+            search_paths=[
+                "gmd:distributorContact/gmd:CI_ResponsibleParty"
+            ],
+            multiplicity="0..1",
+        ),
+        ISODataFormat(
+            name="data-format",
+            search_paths=[
+                "gmd:distributorFormat/gmd:MD_Format"
+            ],
+            multiplicity="0..1"
+        )
+    ]
 
 
 class ISODocument(MappedXmlDocument):
@@ -869,7 +917,13 @@ class ISODocument(MappedXmlDocument):
             ],
             multiplicity="*",
         ),
-
+        ISODistributor(
+            name="distributor-info",
+            search_paths=[
+                "gmd:distributionInfo/gmd:MD_Distribution/gmd:distributor/gmd:MD_Distributor"
+            ],
+            multiplicity="*"
+        )
     ]
 
     def infer_values(self, values):
