@@ -615,6 +615,13 @@ class ISODocument(MappedXmlDocument):
             multiplicity="1..*",
         ),
         ISOElement(
+            name="dataset-edition",
+            search_paths=[
+                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:edition/gco:CharacterString/text()"
+            ],
+            multiplicity="*"
+        ),
+        ISOElement(
             name="unique-resource-identifier",
             search_paths=[
                 "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:MD_Identifier/gmd:code/gco:CharacterString/text()",
@@ -938,6 +945,20 @@ class ISODocument(MappedXmlDocument):
                 "gmd:distributionInfo/gmd:MD_Distribution/gmd:distributor/gmd:MD_Distributor"
             ],
             multiplicity="*"
+        ),
+        ISOResponsibleParty(
+            name="publisher-info",
+            search_paths=[
+                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:citedResponsibleParty/gmd:CI_ResponsibleParty[gmd:role/gmd:CI_RoleCode/@codeListValue=\"publisher\"]"
+            ],
+            multiplicity="0..1"
+        ),
+        ISOResponsibleParty(
+            name="resource-provider",
+            search_paths=[
+                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:citedResponsibleParty/gmd:CI_ResponsibleParty[gmd:role/gmd:CI_RoleCode/@codeListValue=\"resourceProvider\"]"
+            ],
+            multiplicity="0..1"
         )
     ]
 
