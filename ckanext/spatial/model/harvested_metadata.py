@@ -153,6 +153,7 @@ class ISOElement(MappedXmlElement):
         "gss": "http://www.isotc211.org/2005/gss",
         "gco": "http://www.isotc211.org/2005/gco",
         "gmd": "http://www.isotc211.org/2005/gmd",
+        "gmi": "http://www.isotc211.org/2005/gmi",
         "srv": "http://www.isotc211.org/2005/srv",
         "xlink": "http://www.w3.org/1999/xlink",
         "xsi": "http://www.w3.org/2001/XMLSchema-instance",
@@ -416,12 +417,30 @@ class ISOBrowseGraphic(ISOElement):
         ),
     ]
 
+class ISOThesaurus(ISOElement):
+
+    elements = [
+        ISOElement(
+            name="title",
+            search_paths=[
+                "gmd:CI_Citation/gmd:title/gco:CharacterString/text()"
+            ],
+            multiplicity='1',
+        ),
+        ISOElement(
+            name="edition",
+            search_paths=[
+                "gmd:CI_Citation/gmd:edition/gco:CharacterString/text()"
+            ],
+            multiplicity='0..1',
+        )
+    ]
 
 class ISOKeyword(ISOElement):
 
     elements = [
         ISOElement(
-            name="keyword",
+            name="keywords",
             search_paths=[
                 "gmd:keyword/gco:CharacterString/text()",
             ],
@@ -435,8 +454,13 @@ class ISOKeyword(ISOElement):
             ],
             multiplicity="0..1",
         ),
-        # If Thesaurus information is needed at some point, this is the
-        # place to add it
+        ISOThesaurus(
+            name="thesaurus",
+            search_paths=[
+                "gmd:thesaurusName"
+            ],
+            multiplicity="0..1"
+        )
     ]
 
 
@@ -530,6 +554,22 @@ class ISODistributor(ISOElement):
         )
     ]
 
+
+class ISOLineageProcessStep(ISOElement):
+
+    elements = [
+        ISOElement(
+            name='description',
+            search_paths='gmd:description/gco:CharacterString/text()',
+            multiplicity='1'
+        ),
+
+        ISOElement(
+            name='rationale',
+            search_paths='gmd:rationale/gco:CharacterString/text()',
+            multiplicity='0..1'
+        )
+    ]
 
 class ISODocument(MappedXmlDocument):
 
@@ -874,6 +914,13 @@ class ISODocument(MappedXmlDocument):
             ],
             multiplicity="0..1",
         ),
+        #  ISOElement(
+        #      name='use-limitations',
+        #      search_paths=[
+        #          "gmi:MI_Metadata/gmd:identificationInfo/gmd:MD_DataIdentification/gmd:resourceConstraints/gmd:MD_Constraints/gmd:useLimitation/gco:CharacterString/text()"
+        #      ],
+        #      multiplicity="*",
+        #  ),
         ISODataFormat(
             name="data-format",
             search_paths=[
@@ -931,6 +978,13 @@ class ISODocument(MappedXmlDocument):
             ],
             multiplicity="0..1",
         ),
+        ISOLineageProcessStep(
+            name="lineage-process-steps",
+            search_paths=[
+                "gmd:dataQualityInfo/gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:processStep/gmi:LE_ProcessStep"
+            ],
+            multiplicity="*",
+        ),
         ISOBrowseGraphic(
             name="browse-graphic",
             search_paths=[
@@ -959,7 +1013,14 @@ class ISODocument(MappedXmlDocument):
                 "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:citedResponsibleParty/gmd:CI_ResponsibleParty[gmd:role/gmd:CI_RoleCode/@codeListValue=\"resourceProvider\"]"
             ],
             multiplicity="0..1"
-        )
+        ),
+        ISOElement(
+            name="fees",
+            search_paths=[
+                "gmd:distributionInfo/gmd:MD_Distribution/gmd:distributor//gmd:fees/gco:CharacterString/text()"
+            ],
+            multiplicity="*"
+        ),
     ]
 
     def infer_values(self, values):
