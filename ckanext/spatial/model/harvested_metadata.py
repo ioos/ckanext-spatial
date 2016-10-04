@@ -515,6 +515,32 @@ class ISOUsage(ISOElement):
     ]
 
 
+class ISOLegalConstraints(ISOElement):
+    '''
+    For gmd:MD_LegalConstraints
+    '''
+    def __init__(self, name, constraint_tag=None, search_paths=[], multiplicity="*", elements=[]):
+        ISOElement.__init__(self, name, search_paths, multiplicity, elements)
+        self.constraint_tag = constraint_tag if constraint_tag is not None else 'gmd:useConstraints'
+
+    def get_values(self, elements):
+        '''
+        If the restriction code is set to otherRestrictions, pull the text
+        string from gmd:otherConstraints, otherwise use the
+        gmd:MD_RestrictionCode
+        '''
+        values = []
+        for element in elements:
+            restriction_code = element.xpath('{}/gmd:MD_RestrictionCode/@codeListValue'.format(self.constraint_tag), namespaces=self.namespaces)
+            if restriction_code:
+                if restriction_code[0] == 'otherRestrictions':
+                    value = element.xpath('gmd:otherConstraints/gco:CharacterString/text()', namespaces=self.namespaces)
+                else:
+                    value = restriction_code
+                values.extend(value)
+        return values
+
+
 class ISOAggregationInfo(ISOElement):
 
     elements = [
@@ -804,24 +830,21 @@ class ISODocument(MappedXmlDocument):
             ],
             multiplicity="*",
         ),
-        ISOElement(
-            name="access-constraints",
-            search_paths=[
-                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:resourceConstraints/gmd:MD_LegalConstraints/gmd:accessConstraints/gmd:MD_RestrictionCode/@codeListValue",
-                "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:resourceConstraints/gmd:MD_LegalConstraints/gmd:accessConstraints/gmd:MD_RestrictionCode/@codeListValue",
-                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:resourceConstraints/gmd:MD_LegalConstraints/gmd:accessConstraints/gmd:MD_RestrictionCode/text()",
-                "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:resourceConstraints/gmd:MD_LegalConstraints/gmd:accessConstraints/gmd:MD_RestrictionCode/text()",
-            ],
-            multiplicity="*",
-        ),
-
-        ISOElement(
+        ISOLegalConstraints(
             name="use-constraints",
+            constraint_tag='gmd:useConstraints',
             search_paths=[
-                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:resourceConstraints/gmd:MD_Constraints/gmd:useLimitation/gco:CharacterString/text()",
-                "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:resourceConstraints/gmd:MD_Constraints/gmd:useLimitation/gco:CharacterString/text()",
+                'gmd:identificationInfo/gmd:MD_DataIdentification/gmd:resourceConstraints/gmd:MD_LegalConstraints'
             ],
-            multiplicity="*",
+            multiplicity='*'
+        ),
+        ISOLegalConstraints(
+            name='access-constraints',
+            constraint_tag='gmd:accessConstraints',
+            search_paths=[
+                'gmd:identificationInfo/gmd:MD_DataIdentification/gmd:resourceConstraints/gmd:MD_LegalConstraints'
+            ],
+            multiplicity='*'
         ),
         ISOAggregationInfo(
             name="aggregation-info",
