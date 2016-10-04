@@ -435,6 +435,29 @@ class ISOThesaurus(ISOElement):
         )
     ]
 
+
+class ISOAnchor(ISOElement):
+    '''
+    For gmx:Anchor
+    '''
+    elements = [
+        ISOElement(
+            name="text",
+            search_paths=[
+                "text()",
+            ],
+            multiplicity="1",
+        ),
+        ISOElement(
+            name="href",
+            search_paths=[
+                "@xlink:href",
+            ],
+            multiplicity="1",
+        ),
+    ]
+
+
 class ISOKeyword(ISOElement):
 
     elements = [
@@ -442,6 +465,13 @@ class ISOKeyword(ISOElement):
             name="keywords",
             search_paths=[
                 "gmd:keyword/gco:CharacterString/text()",
+            ],
+            multiplicity="*",
+        ),
+        ISOAnchor(
+            name='anchors',
+            search_paths=[
+                "gmd:keyword/gmx:Anchor",
             ],
             multiplicity="*",
         ),
