@@ -149,6 +149,7 @@ class SpatialMetadata(p.SingletonPlugin):
                 'get_reference_date' : spatial_helpers.get_reference_date,
                 'get_responsible_party': spatial_helpers.get_responsible_party,
                 'get_common_map_config' : spatial_helpers.get_common_map_config,
+                'reduce_to_point': spatial_helpers.reduce_to_point
                 }
 
 class SpatialQuery(p.SingletonPlugin):
