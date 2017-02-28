@@ -7,6 +7,9 @@ if p.toolkit.check_ckan_version("2.9"):
     config = p.toolkit.config
 else:
     from pylons import config
+import json
+
+from shapely.geometry import shape, mapping
 
 log = logging.getLogger(__name__)
 
@@ -73,3 +76,19 @@ def get_common_map_config():
     '''
     namespace = 'ckanext.spatial.common_map.'
     return dict([(k.replace(namespace, ''), v) for k, v in config.items() if k.startswith(namespace)])
+
+def reduce_to_point(gj):
+    """
+    Takes a geojson string and determines if the area is small enough that it is
+    essentially a point, return a point geojson.  Otherwise, return the original
+    GeoJSON
+    """
+    try:
+        shp = shape(json.loads(gj))
+    # if we can't load to shape, return the original string
+    except:
+        return gj
+    if shp.area < 5e-9:
+        return json.dumps(mapping(shp.centroid))
+    else:
+        return gj
