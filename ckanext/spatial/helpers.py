@@ -7,6 +7,9 @@ import json
 
 from shapely.geometry import shape, mapping
 from ckantoolkit import config
+import json
+
+from shapely.geometry import shape, mapping
 
 log = logging.getLogger(__name__)
 
