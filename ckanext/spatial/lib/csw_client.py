@@ -172,9 +172,15 @@ class CswService(OwsService):
         record = self._xmd(list(csw.records.values())[0])
 
         ## strip off the enclosing results container, we only want the metadata
-        #md = csw._exml.find("/gmd:MD_Metadata")#, namespaces=namespaces)
-        # Ordinary Python version's don't support the metadata argument
-        md = csw._exml.find("/{http://www.isotc211.org/2005/gmd}MD_Metadata")
+        # Ordinary Python versions don't support the metadata argument
+        md = csw._exml.find("/gmd:MD_Metadata | /gmi:MI_Metadata",
+                            namespaces=namespaces)
+        # If MD_Metadata or MI_Metadata is not the root element, raise
+        # an error
+        if md is None:
+            raise ValueError("Could not find MD_Metadata or MI_Metadata "
+                             "in XML document")
+
         mdtree = etree.ElementTree(md)
         try:
             record["xml"] = etree.tostring(mdtree, pretty_print=True, encoding=str)
@@ -185,6 +191,7 @@ class CswService(OwsService):
             except AssertionError:
                 record["xml"] = etree.tostring(md, pretty_print=True, encoding=str)
 
-        record["xml"] = '<?xml version="1.0" encoding="UTF-8"?>\n' + record["xml"]
+        record["xml"] = ('<?xml version="1.0" encoding="UTF-8"?>\n'
+                         '{}'.format(record["xml"]))
         record["tree"] = mdtree
         return record
