@@ -531,10 +531,16 @@ class ISOLegalConstraints(ISOElement):
         '''
         values = []
         for element in elements:
-            restriction_code = element.xpath('{}/gmd:MD_RestrictionCode/@codeListValue'.format(self.constraint_tag), namespaces=self.namespaces)
+            # if the node is text, instead of XML, just return the text node
+            if isinstance(element, str):
+                values.append(element)
+                continue
+            restriction_code = element.xpath('{}/gmd:MD_RestrictionCode/@codeListValue'.format(self.constraint_tag),
+                                             namespaces=self.namespaces)
             if restriction_code:
                 if restriction_code[0] == 'otherRestrictions':
-                    value = element.xpath('gmd:otherConstraints/gco:CharacterString/text()', namespaces=self.namespaces)
+                    value = element.xpath('gmd:otherConstraints/gco:CharacterString/text()',
+                                          namespaces=self.namespaces)
                 else:
                     value = restriction_code
                 values.extend(value)
@@ -838,18 +844,23 @@ class ISODocument(MappedXmlDocument):
             multiplicity="*",
         ),
         ISOLegalConstraints(
-            name="use-constraints",
-            constraint_tag='gmd:useConstraints',
+            name='access-constraints',
+            constraint_tag='gmd:accessConstraints',
             search_paths=[
-                'gmd:identificationInfo/gmd:MD_DataIdentification/gmd:resourceConstraints/gmd:MD_LegalConstraints'
+                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:resourceConstraints/gmd:MD_LegalConstraints/gmd:MD_RestrictionCode[@codeListValue='otherRestrictions']/gmd:otherConstraints/gco:CharacterString/text() |"
+                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:resourceConstraints/gmd:MD_LegalConstraints/gmd:MD_RestrictionCode[@codeListValue!='otherRestrictions']/@codeListValue",
+                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:resourceConstraints/gmd:MD_LegalConstraints",
             ],
             multiplicity='*'
         ),
         ISOLegalConstraints(
-            name='access-constraints',
-            constraint_tag='gmd:accessConstraints',
+            name="use-constraints",
+            constraint_tag='gmd:useConstraints',
             search_paths=[
-                'gmd:identificationInfo/gmd:MD_DataIdentification/gmd:resourceConstraints/gmd:MD_LegalConstraints'
+                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:resourceConstraints/gmd:MD_Constraints/gmd:useLimitation/gco:CharacterString/text()",
+                "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:resourceConstraints/gmd:MD_Constraints/gmd:useLimitation/gco:CharacterString/text()",
+                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:resourceConstraints/gmd:MD_LegalConstraints/gmd:useLimitation/gco:CharacterString/text()",
+                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:resourceConstraints/gmd:MD_LegalConstraints",
             ],
             multiplicity='*'
         ),
