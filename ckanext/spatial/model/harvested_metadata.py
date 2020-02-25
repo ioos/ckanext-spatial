@@ -547,6 +547,35 @@ class ISOLegalConstraints(ISOElement):
         return values
 
 
+class ISOUseLimitations(ISOElement):
+    '''
+    For gmd:MD_UseLimitations
+    '''
+    def __init__(self, name, search_paths=[], multiplicity="*", elements=[]):
+        ISOElement.__init__(self, name, search_paths, multiplicity, elements)
+
+    def get_values(self, elements):
+        '''
+        If the restriction code is set to otherRestrictions, pull the text
+        string from gmd:otherConstraints, otherwise use the
+        gmd:MD_RestrictionCode
+        '''
+        values = []
+        for element in elements:
+            # if the node is text, instead of XML, just return the text node
+            if isinstance(element, str):
+                values.append(element)
+                continue
+            use_limitations = element.xpath("./gmd:useLimitation",
+                                            namespaces=self.namespaces)
+            if use_limitations:
+                for use_limitation in use_limitations:
+                   value = use_limitation.xpath("./gco:CharacterString/text()",
+                                                namespaces=self.namespaces)
+            values.extend(value)
+        return values
+
+
 class ISOAggregationInfo(ISOElement):
 
     elements = [
@@ -860,6 +889,13 @@ class ISODocument(MappedXmlDocument):
                 "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:resourceConstraints/gmd:MD_Constraints/gmd:useLimitation/gco:CharacterString/text()",
                 "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:resourceConstraints/gmd:MD_Constraints/gmd:useLimitation/gco:CharacterString/text()",
                 "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:resourceConstraints/gmd:MD_LegalConstraints/gmd:useLimitation/gco:CharacterString/text()",
+                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:resourceConstraints/gmd:MD_LegalConstraints",
+            ],
+            multiplicity='*'
+        ),
+        ISOUseLimitations(
+            name="use-limitations",
+            search_paths=[
                 "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:resourceConstraints/gmd:MD_LegalConstraints",
             ],
             multiplicity='*'
