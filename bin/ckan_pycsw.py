@@ -206,12 +206,8 @@ def get_record(context, repo, ckan_url, ckan_id, ckan_info):
     if not record.identifier:
         record.identifier = ckan_id
     record.ckan_id = ckan_id
-<<<<<<< HEAD
     record.organization = ckan_info['organization']
     record.ckan_modified = ckan_info['metadata_modified']
-=======
-    record.ckan_modified = ckan_info["metadata_modified"]
->>>>>>> master
 
     return record
 
