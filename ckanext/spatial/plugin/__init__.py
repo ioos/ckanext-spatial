@@ -181,7 +181,18 @@ class SpatialQuery(SpatialQueryMixin, p.SingletonPlugin):
                   'Please upgrade CKAN or select the \'postgis\' backend.'
             raise tk.CkanVersionException(msg)
 
+    # IPackageController
+
     def before_index(self, pkg_dict):
+        return self.before_dataset_index(pkg_dict)
+
+    def before_search(self, search_params):
+        return self.before_dataset_search(search_params):
+
+    def after_search(self, search_results, search_params):
+        return self.after_dataset_search(search_results, search_params):
+
+    def before_dataset_index(self, pkg_dict):
         import shapely
         import shapely.geometry
 
@@ -242,7 +253,7 @@ class SpatialQuery(SpatialQueryMixin, p.SingletonPlugin):
 
         return pkg_dict
 
-    def before_search(self, search_params):
+    def before_dataset_search(self, search_params):
         from ckanext.spatial.lib import  validate_bbox
         from ckan.lib.search import SearchError
 
@@ -381,7 +392,7 @@ class SpatialQuery(SpatialQueryMixin, p.SingletonPlugin):
 
         return search_params
 
-    def after_search(self, search_results, search_params):
+    def after_dataset_search(self, search_results, search_params):
         from ckan.lib.search import PackageSearchQuery
 
         # Note: This will be deprecated at some point in favour of the
