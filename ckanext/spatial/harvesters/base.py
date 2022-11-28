@@ -162,7 +162,7 @@ def guess_resource_format(resource_locator, use_mimetypes=True):
         'OPeNDAP': ('nc',),
         'tif': ('tif','tiff',),
         'shp': ('shp',),
-        'zip': ('zip',)
+        'zip': ('zip',),
         # DAP
         'OPeNDAP': ('nc',),
     }
