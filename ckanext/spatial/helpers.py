@@ -88,4 +88,3 @@ def reduce_to_point(gj):
         return json.dumps(mapping(shp.centroid))
     else:
         return gj
->>>>>>> Change small bounding boxes to points on Leaflet map
