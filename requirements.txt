@@ -10,3 +10,4 @@ pyproj==3.6.1; python_version >= '3.9'
 Shapely==2.0.1
 OWSLib==0.28.1
 geojson==3.0.1
+GeoAlchemy
