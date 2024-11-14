@@ -5,8 +5,7 @@ import io
 import codecs
 import os
 import argparse
-from six.moves.configparser import SafeConfigParser
-import codecs
+from configparser import SafeConfigParser
 
 import requests
 from lxml import etree

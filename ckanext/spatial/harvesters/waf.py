@@ -1,7 +1,7 @@
 from __future__ import print_function
 
-import six
-from six.moves.urllib.parse import urljoin
+import os
+from urllib.parse import urljoin
 import logging
 import hashlib
 
@@ -98,7 +98,7 @@ class WAFHarvester(SpatialHarvester, SingletonPlugin):
 
         url_to_modified_harvest = {} ## mapping of url to last_modified in harvest
         try:
-            for url, modified_date in _extract_waf(six.text_type(content),source_url,scraper):
+            for url, modified_date in _extract_waf(str(content),source_url,scraper):
                 url_to_modified_harvest[url] = modified_date
         except Exception as e:
             msg = 'Error extracting URLs from %s, error was %s' % (source_url, e)
@@ -245,17 +245,25 @@ nginx   = parse.SkipTo(parse.CaselessLiteral("<a href="), include=True).suppress
         ,adjacent=False, joinString=' ').setResultsName('date')
         )
 
-iis =      parse.SkipTo("<br>").suppress() \
-         + parse.OneOrMore("<br>").suppress() \
-         + parse.Optional(parse.Combine(
-           parse.Word(parse.alphanums+'/') +
-           parse.Word(parse.alphanums+':') +
-           parse.Word(parse.alphas)
-         , adjacent=False, joinString=' ').setResultsName('date')
-         ) \
-         + parse.Word(parse.nums).suppress() \
-         + parse.Literal('<A HREF=').suppress() \
-         + parse.quotedString.setParseAction(parse.removeQuotes).setResultsName('url')
+iis     = parse.SkipTo("<br>").suppress() \
+        + parse.OneOrMore("<br>").suppress() \
+        + parse.Optional(parse.Combine(
+            parse.Word(parse.alphanums+'/') +
+            parse.Word(parse.alphanums+':') +
+            parse.Word(parse.alphas)
+        , adjacent=False, joinString=' ').setResultsName('date')
+        ) \
+        + parse.Optional(parse.Combine(
+            parse.Word(parse.alphas+',') +
+            parse.Word(parse.alphas) +
+            parse.Word(parse.nums+',') +
+            parse.Word(parse.nums) +
+            parse.Word(parse.nums+':') +
+            parse.Word(parse.alphas)
+        , adjacent=False, joinString=' ').setResultsName('date')
+        ) \
+        + parse.SkipTo('<A HREF=', include=True).suppress() \
+        + parse.quotedString.setParseAction(parse.removeQuotes).setResultsName('url')
 
 other = parse.SkipTo(parse.CaselessLiteral("<a href="), include=True).suppress() \
         + parse.quotedString.setParseAction(parse.removeQuotes).setResultsName('url')
@@ -271,7 +279,7 @@ def _get_scraper(server):
         return 'apache'
     if 'nginx' in server.lower():
         return 'nginx'
-    if server == 'Microsoft-IIS/7.5':
+    if 'Microsoft-IIS' in server:
         return 'iis'
     else:
         return 'other'
@@ -303,11 +311,13 @@ def _extract_waf(content, base_url, scraper, results = None, depth=0):
             continue
         if 'mailto:' in url:
             continue
-        if '..' not in url and url[0] != '/' and url[-1] == '/':
+        if '..' not in url and url[-1] == '/':
             new_depth = depth + 1
             if depth > 10:
                 log.info('Max WAF depth reached')
                 continue
+            # turn iis dir url '/some/full/path/' into apache/nginx style 'path/'
+            url = os.path.basename(url.rstrip('/')) + '/'
             new_url = urljoin(base_url, url)
             if not new_url.startswith(base_url):
                 continue
@@ -316,19 +326,21 @@ def _extract_waf(content, base_url, scraper, results = None, depth=0):
                 response = requests.get(new_url)
                 content = response.content
             except Exception as e:
-                print(six.text_type(e))
+                print(str(e))
                 continue
-            _extract_waf(six.text_type(content), new_url, scraper, results, new_depth)
+            _extract_waf(str(content), new_url, scraper, results, new_depth)
             continue
         if not url.endswith('.xml'):
             continue
         date = record.date
         if date:
             try:
-                date = six.text_type(dateutil.parser.parse(date))
+                date = str(dateutil.parser.parse(date))
             except Exception as e:
                 raise
                 date = None
+        if not date:
+            log.debug('failed to get date for %s', url)
         results.append((urljoin(base_url, record.url), date))
 
     return results
