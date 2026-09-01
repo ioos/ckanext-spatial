@@ -2,3 +2,5 @@ recursive-include ckanext/spatial/templates                                     
 recursive-include ckanext/spatial/public                                              *
 recursive-include ckanext/spatial/assets                                              *
 recursive-include ckanext/spatial/validation/xml                                      *
+include requirements.txt
+include dev-requirements.txt

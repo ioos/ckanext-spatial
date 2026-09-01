@@ -1,6 +1,14 @@
 # Changelog
 
-## [Unreleased](https://github.com/ckan/ckanext-dcat/compare/v2.3.1...HEAD)
+## [Unreleased](https://github.com/ckan/ckanext-dcat/compare/v2.3.2...HEAD)
+
+## [v2.3.2](https://github.com/ckan/ckanext-spatial/compare/v2.3.1...v2.3.2) - 2026-08-11
+
+* The extension can now be installed via `pip install ckanext-spatial`: included requirements in pyproject.toml
+  and loosened requirement versions to make it easier to install on different environments.
+* Support for CKAN 2.12 [#355](https://github.com/ckan/ckanext-spatial/pull/355)
+* Support for Python 3.13 and 3.14 [#354](https://github.com/ckan/ckanext-spatial/pull/354)
+* Allow to configure the solr spatial field name [#351](https://github.com/ckan/ckanext-spatial/issues/351)
 
 
 

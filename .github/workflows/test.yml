@@ -1,15 +1,22 @@
 name: Tests
 on: [push, pull_request]
 
+permissions: {}
+
 jobs:
 
   lint:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          python-version: '3.8'
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.10'
       - name: Install requirements
         run: pip install flake8 pycodestyle
       - name: Check syntax
@@ -20,6 +27,10 @@ jobs:
     strategy:
       matrix:
         include:
+          - ckan-version: "2.12"
+            ckan-image: "ckan/ckan-dev:2.12-py3.14"
+            solr-image: "2.12-solr9-spatial"
+            harvester-version: 'master'
           - ckan-version: "2.11"
             ckan-image: "ckan/ckan-dev:2.11-py3.10"
             solr-image: "2.11-solr9-spatial"
@@ -56,7 +67,9 @@ jobs:
       PGPASSWORD: postgres
     
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
 
     - name: Install dependencies (common)
       run: |
@@ -65,7 +78,9 @@ jobs:
           python3-dev \
           libxml2-dev \
           libxslt1-dev \
-          libgeos-c1v5
+          libgeos-dev \
+          libproj-dev \
+          proj-bin
 
     - name: Install dependencies from requirements.txt
       run: |
